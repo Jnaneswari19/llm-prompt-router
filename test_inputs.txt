@@ -1,0 +1,25 @@
+# Coding Tasks
+Write a Python function to calculate factorial.
+Create a JavaScript function to remove duplicates from an array.
+Write a SQL query to find the top 5 highest paid employees.
+Debug this Python code:
+for i in range(10)
+print(i)
+
+# Reasoning / Math
+Solve: If 5x + 10 = 35, find x.
+What is the time complexity of binary search?
+Explain recursion with an example.
+
+# General Questions
+Explain the theory of relativity in simple terms.
+What are the benefits of using Docker in development?
+Explain machine learning to a beginner.
+What is the difference between TCP and UDP?
+
+Write a Python function to reverse a list
+Explain recursion
+Solve 2x + 6 = 14
+Improve this paragraph
+Job interview tips
+What is machine learning

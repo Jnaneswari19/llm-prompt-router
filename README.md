@@ -1,69 +1,65 @@
+
 # LLM Prompt Router
 
-A lightweight **Python-based LLM Prompt Router** that classifies user prompts by intent and routes them to the appropriate response module.
-The system demonstrates how real-world AI systems perform **intent detection, routing, and logging**.
+A lightweight **Python-based LLM Prompt Router** that classifies user prompts by intent and routes them to specialized AI personas.
+The system demonstrates how modern AI applications perform **intent detection, prompt routing, and structured logging**.
 
 ---
 
-# Project Overview
+## Project Overview
 
-This project simulates how AI assistants route different types of user queries to specialized handlers.
+This project simulates how AI assistants handle different types of user requests by routing them to specialized expert prompts.
 
-The router analyzes user input and classifies it into different intents such as:
+Instead of relying on a single monolithic prompt, the system follows a **two-step architecture**:
 
-* Code related questions
-* Data analysis queries
-* Writing or grammar improvement
-* Career advice
-* Mathematical reasoning
-* General knowledge questions
+1. **Intent Classification** – A lightweight LLM call determines the user's intent.
+2. **Prompt Routing** – The system routes the request to a specialized expert persona to generate the response.
 
-After detecting the intent, the router generates a relevant response and logs the interaction.
+This design improves **response quality, scalability, and maintainability** compared to using a single general-purpose prompt.
 
 ---
 
-# Features
+## Features
 
-* Intent classification using keyword matching
-* Routing system for different prompt categories
+* Intent classification using a lightweight LLM call
+* Prompt routing to specialized expert personas
 * Interactive command-line interface (CLI)
 * Request logging for monitoring and debugging
 * Docker support for containerized execution
-* Modular Python architecture
+* Modular Python project architecture
 
 ---
 
-# Supported Intents
+## Supported Intents
 
-| Intent  | Example Input                   |
-| ------- | ------------------------------- |
-| Code    | Write a Python function         |
-| Data    | What is the average of 10 20 30 |
-| Writing | Improve this sentence           |
-| Career  | Job interview tips              |
-| Math    | Solve 5x + 10 = 35              |
-| General | Explain machine learning        |
+| Intent  | Example Input                             |
+| ------- | ----------------------------------------- |
+| code    | Write a Python function to reverse a list |
+| data    | What is the average of 10, 20, 30?        |
+| writing | Improve this sentence                     |
+| career  | Job interview preparation tips            |
+| unclear | Help me                                   |
+
+Each intent is mapped to a **dedicated expert persona prompt**.
 
 ---
 
-# Project Structure
+## Project Structure
 
 ```
-llm-router-project
+llm-prompt-router
 │
-├── app.py              # Application setup
-├── main.py             # CLI interface
-├── classifier.py       # Intent classification logic
-├── router.py           # Response routing
+├── app.py              # Main application entry point
+├── classifier.py       # LLM intent classification
+├── router.py           # Prompt routing logic
+├── prompts.py          # Expert persona prompts
 ├── logger.py           # Request logging
-├── prompts.py          # Prompt templates
+├── test_inputs.py      # Sample prompts for testing
 │
 ├── requirements.txt    # Python dependencies
 ├── Dockerfile          # Docker container configuration
 │
-├── test_inputs.txt     # Sample prompts for testing
 ├── route_log.jsonl     # Stored interaction logs
-│
 ├── .env.example        # Environment variable template
 ├── .gitignore
 └── README.md
@@ -71,36 +67,42 @@ llm-router-project
 
 ---
 
-# How It Works
+## How It Works
 
-The router processes user queries using the following pipeline:
+The system processes user queries using the following pipeline:
 
 ```
 User Input
      ↓
-Intent Classifier
+LLM Intent Classifier
      ↓
-Router
+Intent + Confidence Score
      ↓
-Generate Response
+Prompt Router
+     ↓
+Expert Persona Prompt
+     ↓
+LLM Response Generation
      ↓
 Log Interaction
 ```
 
+### Step-by-step workflow
+
 1. The user enters a query.
-2. The classifier determines the query intent.
-3. The router selects the appropriate response module.
-4. The response is returned to the user.
-5. The interaction is logged for monitoring.
+2. The **intent classifier (LLM)** analyzes the message and determines the intent.
+3. The **router selects the corresponding expert persona prompt**.
+4. The system generates a response using the LLM.
+5. The interaction is **logged for monitoring and debugging**.
 
 ---
 
-# Running the Project Locally
+## Running the Project Locally
 
 ### Step 1 — Navigate to the project folder
 
 ```
-cd llm-router-project
+cd llm-prompt-router
 ```
 
 ### Step 2 — Install dependencies
@@ -109,20 +111,30 @@ cd llm-router-project
 pip install -r requirements.txt
 ```
 
-### Step 3 — Run the application
+### Step 3 — Configure environment variables
+
+Create a `.env` file:
 
 ```
-python main.py
+OPENAI_API_KEY=your_openai_api_key_here
 ```
 
-### Step 4 — Interact with the router
+### Step 4 — Run the application
 
-Example:
+```
+python app.py
+```
+
+---
+
+## Example Interaction
+
+Example CLI session:
 
 ```
 User: Write a Python function to reverse a list
 
-Detected Intent: code
+Detected Intent: code (confidence: 0.94)
 
 Assistant:
 
@@ -138,41 +150,7 @@ exit
 
 ---
 
-# Running with Docker
-
-### Build the Docker image
-
-```
-docker build -t llm-router .
-```
-
-### Run the container
-
-```
-docker run -it llm-router
-```
-
----
-
-# Example Usage
-
-Example session:
-
-```
-User: Solve 5x + 10 = 35
-
-Detected Intent: math
-
-Assistant:
-
-5x + 10 = 35
-5x = 25
-x = 5
-```
-
----
-
-# Logging
+## Logging
 
 All interactions are stored in:
 
@@ -185,53 +163,70 @@ Example log entry:
 ```json
 {
   "timestamp": "2026-03-11 20:56:38",
-  "intent": "math",
-  "confidence": 0.9,
-  "message": "Solve: 5x + 10 = 35",
-  "response": "x = 5"
+  "intent": "code",
+  "confidence": 0.94,
+  "user_message": "Write a Python function to reverse a list",
+  "final_response": "def reverse_list(lst): return lst[::-1]"
 }
 ```
 
-This log helps analyze system behavior and improve routing performance.
+This log file helps track routing decisions and analyze system behavior.
 
 ---
 
-# Technologies Used
+## Running with Docker
+
+### Build Docker image
+
+```
+docker build -t llm-router .
+```
+
+### Run container
+
+```
+docker run -it llm-router
+```
+
+This allows the application to run in a **portable containerized environment**.
+
+---
+
+## Technologies Used
 
 * Python
+* OpenAI API
 * Docker
 * JSON logging
 * Command Line Interface (CLI)
 
 ---
 
-# Future Improvements
+## Future Improvements
 
 Possible enhancements include:
 
-* Integrating a real LLM API
-* Using machine learning for intent classification
-* Adding more routing modules
-* Building a web-based interface
-* Creating analytics dashboards
+* Confidence threshold for intent detection
+* Manual intent override (e.g., `@code fix this bug`)
+* Web interface using Flask or FastAPI
+* Advanced analytics for routing performance
+* Integration with additional AI models
 
 ---
 
-# Learning Outcomes
+## Learning Outcomes
 
 This project demonstrates:
 
 * Prompt routing architecture
-* Intent classification techniques
+* LLM-based intent classification
 * Modular Python application design
-* Logging and monitoring
+* Logging and observability
 * Containerized deployment with Docker
 
 ---
 
-
-# Author
+## Author
 
 Developed by **Jnaneswari** as a mini LLM routing system project demonstrating how AI systems classify and route user prompts efficiently.
----
 

@@ -1,47 +1,48 @@
-def classify_intent(message: str) -> dict:
-    msg = message.lower()
+import json
+import os
+from openai import OpenAI
+from dotenv import load_dotenv
 
-    code_keywords = [
-        "python","code","function","program","algorithm",
-        "sort","list","loop","variable","bug","error"
-    ]
+load_dotenv()
 
-    data_keywords = [
-        "data","dataset","average","mean","median","statistics"
-    ]
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-    writing_keywords = [
-        "rewrite","improve","grammar","sentence","paragraph","writing"
-    ]
+def classify_intent(message: str):
 
-    career_keywords = [
-        "career","job","resume","interview","skills"
-    ]
+    prompt = f"""
+Your task is to classify the user's intent.
 
-    math_keywords = [
-        "solve","equation","math","calculate","algebra","+","-","*","/","="
-    ]
+Choose ONE label from:
+code, data, writing, career, unclear
 
-    general_keywords = [
-        "explain","what","define","concept","theory","machine learning"
-    ]
+Return ONLY a JSON object with this format:
 
-    if any(word in msg for word in code_keywords):
-        return {"intent": "code", "confidence": 0.9}
+{{
+ "intent": "label",
+ "confidence": 0.0
+}}
 
-    if any(word in msg for word in data_keywords):
-        return {"intent": "data", "confidence": 0.9}
+User message:
+{message}
+"""
 
-    if any(word in msg for word in writing_keywords):
-        return {"intent": "writing", "confidence": 0.9}
+    try:
 
-    if any(word in msg for word in career_keywords):
-        return {"intent": "career", "confidence": 0.9}
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0
+        )
 
-    if any(word in msg for word in math_keywords):
-        return {"intent": "math", "confidence": 0.9}
+        text = response.choices[0].message.content.strip()
 
-    if any(word in msg for word in general_keywords):
-        return {"intent": "general", "confidence": 0.8}
+        result = json.loads(text)
 
-    return {"intent": "unclear", "confidence": 0.5}
+        return result
+
+    except Exception:
+
+        return {
+            "intent": "unclear",
+            "confidence": 0.0
+        }

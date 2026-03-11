@@ -1,68 +1,33 @@
-from logger import log_route
+import os
+from openai import OpenAI
+from dotenv import load_dotenv
+from prompts import PROMPTS
 
+load_dotenv()
 
-def route_and_respond(intent, message):
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-    msg = message.lower()
+def route_and_respond(message: str, intent: str):
 
-    if intent == "code":
+    if intent == "unclear":
 
-        if "sort" in msg:
-            response = """You can sort a list in Python like this:
+        return "I'm not sure what you need. Are you asking about coding, data analysis, writing improvement, or career advice?"
 
-numbers = [5, 2, 8, 1]
-numbers.sort()
-print(numbers)
-"""
+    system_prompt = PROMPTS.get(intent)
 
-        elif "factorial" in msg:
-            response = """Python factorial example:
+    try:
 
-def factorial(n):
-    if n == 0:
-        return 1
-    return n * factorial(n-1)
-"""
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": message}
+            ],
+            temperature=0.7
+        )
 
-        elif "function" in msg:
-            response = """Example Python function:
+        return response.choices[0].message.content
 
-def greet(name):
-    print("Hello", name)
+    except Exception:
 
-greet("Alice")
-"""
-
-        else:
-            response = "To write Python code, define functions using the 'def' keyword."
-
-    elif intent == "data":
-        response = """Average = (sum of values) / (number of values)
-
-Example:
-(10 + 20 + 30) / 3 = 20
-"""
-
-    elif intent == "writing":
-        response = "Please provide the sentence or paragraph you want me to improve."
-
-    elif intent == "career":
-        response = """Job interview tips:
-1. Practice coding problems
-2. Prepare projects to discuss
-3. Review core concepts
-4. Practice mock interviews
-"""
-
-    elif intent == "math":
-        response = "To solve equations, isolate the variable. Example: 5x + 10 = 35 → x = 5."
-
-    elif intent == "general":
-        response = "This is a general knowledge question. Provide a clear explanation of the topic."
-
-    else:
-        response = "Your request is unclear. Please provide more details."
-
-    log_route(intent, 0.9, message, response)
-
-    return response
+        return "Sorry, something went wrong while generating the response."
